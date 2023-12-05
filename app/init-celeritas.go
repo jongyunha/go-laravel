@@ -18,6 +18,6 @@ func initApplication() *application {
 	}
 
 	cel.AppName = "app"
-	cel.Debug = true
+	cel.InfoLog.Println("Debug is set to", cel.Debug)
 	return &application{App: cel}
 }
