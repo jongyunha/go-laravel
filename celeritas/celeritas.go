@@ -2,10 +2,13 @@ package celeritas
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 const version = "1.0.0"
@@ -36,6 +39,12 @@ func (c *Celeritas) New(rootPath string) error {
 	c.ErrorLog = errorLog
 	c.Debug, _ = strconv.ParseBool(os.Getenv("DEBUG"))
 	c.Version = version
+	c.RootPath = rootPath
+	c.config = config{
+		port:     os.Getenv("PORT"),
+		renderer: os.Getenv("RENDERER"),
+	}
+	c.Routes = c.routes().(*chi.Mux)
 
 	return nil
 }
@@ -50,6 +59,21 @@ func (c *Celeritas) Init(p initPaths) error {
 	}
 
 	return nil
+}
+
+func (c *Celeritas) ListenAndServe() {
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%s", c.config.port),
+		ErrorLog:     c.ErrorLog,
+		Handler:      c.routes(),
+		IdleTimeout:  30 * time.Second,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 600 * time.Second,
+	}
+
+	c.InfoLog.Printf("Listening on port %s", c.config.port)
+	err := server.ListenAndServe()
+	c.ErrorLog.Fatal(err)
 }
 
 func (c *Celeritas) checkDotEnv(path string) error {
