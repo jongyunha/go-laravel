@@ -2,6 +2,7 @@ package celeritas
 
 import (
 	"fmt"
+	"github.com/CloudyKit/jet/v6"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	"github.com/jongyunha/celeritas/render"
@@ -47,8 +48,14 @@ func (c *Celeritas) New(rootPath string) error {
 	}
 	c.Routes = c.routes().(*chi.Mux)
 
-	c.Render = c.createRenderer(c)
+	views := jet.NewSet(
+		jet.NewOSFileSystemLoader(fmt.Sprintf("%s/views", c.RootPath)),
+		jet.InDevelopmentMode(),
+	)
 
+	c.JetViews = views
+
+	c.createRenderer()
 	return nil
 }
 
@@ -99,12 +106,13 @@ func (c *Celeritas) startLoggers() (*log.Logger, *log.Logger) {
 	return infoLog, errorLog
 }
 
-func (c *Celeritas) createRenderer(cel *Celeritas) *render.Render {
+func (c *Celeritas) createRenderer() {
 	renderer := render.Render{
-		Renderer: cel.config.renderer,
-		RootPath: cel.RootPath,
-		Port:     cel.config.port,
+		Renderer: c.config.renderer,
+		RootPath: c.RootPath,
+		Port:     c.config.port,
+		JetViews: c.JetViews,
 	}
 
-	return &renderer
+	c.Render = &renderer
 }

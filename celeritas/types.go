@@ -1,6 +1,7 @@
 package celeritas
 
 import (
+	"github.com/CloudyKit/jet/v6"
 	"github.com/go-chi/chi/v5"
 	"github.com/jongyunha/celeritas/render"
 	"log"
@@ -15,6 +16,7 @@ type Celeritas struct {
 	RootPath string
 	Routes   *chi.Mux
 	Render   *render.Render
+	JetViews *jet.Set
 	config   config
 }
 
