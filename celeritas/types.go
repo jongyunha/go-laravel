@@ -2,6 +2,7 @@ package celeritas
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/jongyunha/celeritas/render"
 	"log"
 )
 
@@ -13,6 +14,7 @@ type Celeritas struct {
 	InfoLog  *log.Logger
 	RootPath string
 	Routes   *chi.Mux
+	Render   *render.Render
 	config   config
 }
 
